@@ -10,7 +10,12 @@ Toutes les textures sont **originales** et dessinées en pixel art 16×16 par un
 |---|---|
 | ![Blocs](screenshots/blocs_3d.png) | ![Objets](screenshots/objets.png) |
 
-Planche brute de toutes les textures : [preview.png](preview.png). Les rendus sont générés par `generator/render_screens.py`.
+### Les ennemis
+
+![Ennemis](screenshots/ennemis.png)
+![Invasion](screenshots/invasion.png)
+
+Planche brute de toutes les textures : [preview.png](preview.png). Les rendus sont générés par `generator/render_screens.py` et `generator/render_mobs.py`.
 
 ## Installation
 
@@ -45,6 +50,12 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** (1.21.x). Si une versi
 | Verre | Champ de force |
 | Pierre lumineuse, lampe | Panneau néon, projecteur |
 | Obsidienne | Panneau de circuits violets |
+
+| Zombie | **Soldat envahisseur** (armure violette, visière rouge, crête orange) |
+| Squelette | **Droïde sentinelle** (robot chromé à œil rouge) |
+| Creeper | **Bombe-robot** (caisse à bandes de danger, compte à rebours) |
+| Araignée | **Araignée mécanique** (yeux rouges lumineux) |
+| Araignée venimeuse | **Araignée-drone** (version sombre à néons bleus) |
 
 Les noms des objets modifiés sont aussi traduits (fichiers `fr_fr.json` et `en_us.json`).
 

@@ -23,5 +23,10 @@
   "block.minecraft.obsidian": "Panneau de circuits",
   "block.minecraft.furnace": "Forge à plasma",
   "block.minecraft.oak_planks": "Plaques de blindage",
-  "block.minecraft.cobblestone": "Ferraille"
+  "block.minecraft.cobblestone": "Ferraille",
+  "entity.minecraft.zombie": "Soldat envahisseur",
+  "entity.minecraft.skeleton": "Droïde sentinelle",
+  "entity.minecraft.creeper": "Bombe-robot",
+  "entity.minecraft.spider": "Araignée mécanique",
+  "entity.minecraft.cave_spider": "Araignée-drone"
 }

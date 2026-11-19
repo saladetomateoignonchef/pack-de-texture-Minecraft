@@ -23,5 +23,10 @@
   "block.minecraft.obsidian": "Circuit Panel",
   "block.minecraft.furnace": "Plasma Forge",
   "block.minecraft.oak_planks": "Armor Plates",
-  "block.minecraft.cobblestone": "Scrap Metal"
+  "block.minecraft.cobblestone": "Scrap Metal",
+  "entity.minecraft.zombie": "Invader Trooper",
+  "entity.minecraft.skeleton": "Sentry Droid",
+  "entity.minecraft.creeper": "Bomb Bot",
+  "entity.minecraft.spider": "Mech Spider",
+  "entity.minecraft.cave_spider": "Spider Drone"
 }

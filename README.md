@@ -4,7 +4,13 @@ Pack de textures **fan-made** pour Minecraft Java Edition, sur un thème sci-fi 
 
 Toutes les textures sont **originales** et dessinées en pixel art 16×16 par un script Python. Le pack ne contient aucun personnage, logo ni élément graphique officiel de la licence.
 
-![Aperçu](preview.png)
+![Scène](screenshots/scene.png)
+
+| Blocs en 3D | Objets |
+|---|---|
+| ![Blocs](screenshots/blocs_3d.png) | ![Objets](screenshots/objets.png) |
+
+Planche brute de toutes les textures : [preview.png](preview.png). Les rendus sont générés par `generator/render_screens.py`.
 
 ## Installation
 

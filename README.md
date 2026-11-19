@@ -17,6 +17,7 @@ Toutes les textures sont **originales** et dessinées en pixel art 16×16 par un
 
 ### L'End, le Nether et les mobs passifs
 
+![Dragon](screenshots/dragon.png)
 ![End et Nether](screenshots/mobs_end_nether.png)
 ![Mobs passifs](screenshots/mobs_passifs.png)
 
@@ -61,7 +62,7 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** pour les blocs et obje
 | Araignée | **Araignée mécanique** (yeux rouges lumineux) |
 | Araignée venimeuse | **Araignée-drone** (version sombre à néons bleus) |
 | Enderman / Endermite | **Spectre du Vide** (yeux violets lumineux) / **Nanobot du Vide** |
-| Shulker / Ender Dragon | **Tourelle-coffre** / **Dragon cuirassé du Vide** (ailes en voiles solaires) |
+| Shulker / Ender Dragon | **Tourelle-coffre** / **Dragon cuirassé du Vide** : dragon-mécha avec réacteur ventral, anneaux d'énergie sur le cou et la queue, voiles d'énergie quadrillées, gueule de plasma — toutes les lignes lumineuses brillent dans le noir ; version « surchauffe » orange pendant sa mort |
 | Blaze / Ghast | **Drone à plasma** / **Sonde-méduse** (écran qui passe au rouge quand elle tire) |
 | Cube de magma / Wither squelette | **Cube de fusion** / **Droïde du Néant** |
 | Piglin / Piglin barbare / Piglin zombifié | **Contrebandier** / **Garde blindé** / **Contrebandier cyborg** |
@@ -71,7 +72,7 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** pour les blocs et obje
 | Champimeuh rouge / brune | **Vache bio-réacteur** |
 | Mouton (+ laine, sous-laine) | **Mouton à ressorts** (laine = fibre isolante, teintable) |
 | Lapin (8 variantes) / Renard (4 variantes) | **Lapin sauteur** / **Renard éclaireur** |
-| Calamar / Calamar luisant / Chauve-souris | **Calamar-sonde** / **Calamar néon** / **Chauve-souris drone** |
+| Calamar / Calamar luisant / Chauve-souris | **Calamar-sonde** / **Calamar néon** / **Chauve-souris drone** (sans ailes : caméra rouge, propulseurs, antennes, patin) |
 
 Les noms des objets modifiés sont aussi traduits (fichiers `fr_fr.json` et `en_us.json`).
 

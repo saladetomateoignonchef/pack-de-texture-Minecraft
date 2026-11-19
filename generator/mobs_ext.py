@@ -164,39 +164,200 @@ def shulker():
     return t
 
 
-def dragon():
-    """Dragon cuirassé : plaques sombres à joints violets, ailes en voiles solaires."""
+# Géométrie 26.3 du dragon : (u, v, w, h, d)
+DRAGON = {
+    "upperlip": (176, 44, 12, 5, 16), "upperhead": (112, 30, 16, 16, 16), "hscale": (0, 0, 2, 4, 6),
+    "nostril": (112, 0, 2, 2, 4), "jaw": (176, 65, 12, 4, 16), "neck": (192, 104, 10, 10, 10),
+    "nscale": (48, 0, 2, 4, 6), "body": (0, 0, 24, 24, 64), "bscale": (220, 53, 2, 6, 12),
+    "wbone": (112, 88, 56, 8, 8), "wtbone": (112, 136, 56, 4, 4), "fleg": (112, 104, 8, 24, 8),
+    "ftip": (226, 138, 6, 24, 6), "ffoot": (144, 104, 8, 4, 16), "rleg": (0, 0, 16, 32, 16),
+    "rtip": (196, 0, 12, 32, 12), "rfoot": (112, 0, 18, 6, 24),
+}
+
+
+def dragon(hot=False):
+    """Dragon-mécha du Vide. Retourne (texture, couche lumineuse « yeux »)."""
+    A = PLASMA if hot else PURPLE  # énergie principale
+    B = RED if hot else CYAN  # énergie secondaire
     t = new(256, 256)
-    rng = random.Random(130)
-    for y in range(0, 200):
-        for x in range(0, 256):
-            if y >= 168 and x >= 56:
-                continue
-            c = VOID[3] if rng.random() < 0.22 else VOID[2]
-            if x % 16 == 0 or y % 12 == 0:
-                c = VOID[1]
-            if (x % 16 == 8 and y % 12 == 6):
-                c = PURPLE[3]
-            px(t, x, y, c)
-    # voiles des ailes : (0,88) et (0,144), 112 x 56 chacune (dessus + dessous)
+    g = new(256, 256)  # couche émissive (dragon_eyes.png)
+
+    def glow(r, x, y, c, solid=True):
+        if 0 <= x < r[2] and 0 <= y < r[3]:
+            px(g, r[0] + x, r[1] + y, c)
+            if solid:
+                px(t, r[0] + x, r[1] + y, c)
+
+    def gline(r, x0, y0, x1, y1, c):
+        for y in range(min(y0, y1), max(y0, y1) + 1):
+            for x in range(min(x0, x1), max(x0, x1) + 1):
+                glow(r, x, y, c)
+
+    R = {}
+    for i, (name, (u, v, w, h, d)) in enumerate(DRAGON.items()):
+        R[name] = box(t, u, v, w, h, d, VOID, 1400 + i, rivets=w * h > 60)
+
+    # --- corps : plaques, conduits, réacteur ventral, tuyères ---
+    body = R["body"]
+    for x in (4, 19):
+        gline(body["top"], x, 0, x, 63, A[3])
+    for y in range(4, 64, 8):
+        frect(t, body["top"], 0, y, 23, y, VOID[0])
+        glow(body["top"], 4, y, A[5]); glow(body["top"], 19, y, A[5])
+    for side in ("left", "right"):
+        r = body[side]
+        for x in range(0, 64, 8):
+            frect(t, r, x, 1, x, 22, VOID[0])
+        gline(r, 2, 9, 61, 9, A[3])
+        for x in range(6, 60, 12):  # circuits qui descendent
+            gline(r, x, 9, x, 15, A[2]); gline(r, x, 15, x + 4, 15, A[2]); glow(r, x + 4, 15, B[5])
+        frect(t, r, 0, 18, 63, 23, STEEL[1])
+        for x in range(1, 64, 4):
+            at(t, r, x, 19, STEEL[4])
+    belly = body["bottom"]
+    for y in range(64):
+        for x in range(24):
+            if y % 6 == 0:
+                at(t, belly, x, y, VOID[0])
+    cx, cy = 11.5, 31.5
+    for y in range(64):
+        for x in range(24):
+            dd = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+            if dd < 3.5:
+                glow(belly, x, y, (255, 255, 255))
+            elif dd < 6:
+                glow(belly, x, y, B[5] if (x + y) % 2 else B[4])
+            elif dd < 7:
+                at(t, belly, x, y, VOID[0])
+            elif dd < 8.6:
+                glow(belly, x, y, A[5] if (x + y) % 3 == 0 else A[4])
+            elif dd < 10.6:
+                at(t, belly, x, y, STEEL[3] if (x * 7 + y * 3) % 5 else STEEL[5])
+    for y in (8, 14, 49, 55):
+        gline(belly, 5, y, 18, y, A[3])
+    chest = body["front"]
+    for i in range(8):
+        glow(chest, 4 + i, 6 + i, A[4]); glow(chest, 19 - i, 6 + i, A[4])
+    frect(t, chest, 0, 20, 23, 23, STEEL[2])
+    back = body["back"]
+    for x0 in (3, 16):
+        for y in range(6, 18):
+            for x in range(x0, x0 + 6):
+                dd = ((x - x0 - 2.5) ** 2 + (y - 11.5) ** 2) ** 0.5
+                if dd < 1.8:
+                    glow(back, x, y, (255, 255, 255))
+                elif dd < 3:
+                    glow(back, x, y, B[4])
+                elif dd < 3.8:
+                    at(t, back, x, y, STEEL[4])
+
+    # --- épines (corps, cou, cornes) : ailerons d'acier à pointe lumineuse ---
+    for name in ("bscale", "nscale", "hscale"):
+        for side, r in R[name].items():
+            frect(t, r, 0, 0, r[2] - 1, r[3] - 1, STEEL[2])
+            if side == "top":
+                gline(r, 0, 0, r[2] - 1, r[3] - 1, A[5])
+            elif side not in ("bottom",):
+                gline(r, 0, 0, r[2] - 1, 0, A[5])
+                gline(r, 0, 1, r[2] - 1, 1, A[3])
+                frect(t, r, 0, r[3] - 1, r[2] - 1, r[3] - 1, STEEL[0])
+
+    # --- cou et queue (même boîte) : anneaux d'énergie ---
+    for side in SIDES:
+        r = R["neck"][side]
+        gline(r, 0, 4, 9, 4, A[3]); gline(r, 0, 5, 9, 5, A[4])
+        frect(t, r, 0, 0, 9, 0, STEEL[2]); frect(t, r, 0, 9, 9, 9, STEEL[1])
+    gline(R["neck"]["top"], 4, 0, 5, 9, A[2])
+
+    # --- tête ---
+    head = R["upperhead"]
+    hf = head["front"]
+    frect(t, hf, 0, 2, 15, 6, OUT)
+    for x0 in (1, 11):
+        for x in range(x0, x0 + 4):
+            glow(hf, x, 4, (255, 255, 255) if x in (x0 + 1, x0 + 2) else A[5])
+            glow(hf, x, 3, A[3]); glow(hf, x, 5, A[3])
+    gline(hf, 7, 0, 8, 2, B[4])
+    for side, front_left in (("left", True), ("right", False)):
+        r = head[side]
+        xs = range(0, 5) if front_left else range(11, 16)
+        for x in xs:
+            glow(r, x, 4, A[5]); glow(r, x, 5, A[4])
+        a, b_ = (5, 15) if front_left else (0, 10)
+        gline(r, a, 8, b_, 8, A[2])
+        frect(t, r, 0, 12, 15, 15, STEEL[1])
+    ht = head["top"]
+    for i in range(8):
+        glow(ht, 7 - i // 2, 15 - i, A[4]); glow(ht, 8 + i // 2, 15 - i, A[4])
+    lip = R["upperlip"]
+    gline(lip["top"], 2, 0, 2, 15, A[2]); gline(lip["top"], 9, 0, 9, 15, A[2])
+    frect(t, lip["top"], 4, 0, 7, 15, STEEL[2])
+    for side in ("left", "right", "front"):
+        r = lip[side]
+        for x in range(r[2]):
+            at(t, r, x, 4, STEEL[5] if x % 2 == 0 else VOID[0])  # crocs d'acier
+    for r in R["nostril"].values():
+        frect(t, r, 0, 0, r[2] - 1, r[3] - 1, OUT)
+    for x, y in ((0, 0), (1, 1)):
+        glow(R["nostril"]["front"], x, y, B[5])
+    jaw = R["jaw"]
+    for y in range(16):  # gueule de plasma
+        for x in range(12):
+            glow(jaw["top"], x, y, A[5] if (x + y) % 3 == 0 else A[4] if 1 <= x <= 10 else STEEL[5])
+    for side in ("left", "right", "front"):
+        r = jaw[side]
+        for x in range(r[2]):
+            at(t, r, x, 0, STEEL[5] if x % 2 else VOID[0])
+        gline(r, 0, 2, r[2] - 1, 2, A[2])
+
+    # --- ailes : os + voiles d'énergie ---
+    for name in ("wbone", "wtbone"):
+        for side, r in R[name].items():
+            if side in ("front", "top"):
+                gline(r, 0, r[3] // 2, r[2] - 1, r[3] // 2, B[3])
+                for x in range(4, r[2], 8):
+                    glow(r, x, r[3] // 2, B[5])
+            if side in ("front", "back"):
+                for x in range(0, r[2], 14):
+                    frect(t, r, x, 0, x + 1, r[3] - 1, STEEL[3])
     for vy in (88, 144):
         for y in range(vy, vy + 56):
             for x in range(0, 112):
-                lx = x % 56
-                c = VOID[1] if rng.random() < 0.8 else VOID[2]
-                if lx % 8 == 0:
-                    c = SHELL[2]  # nervures métalliques
-                if (y - vy) % 14 == 7 and lx % 8 == 4:
-                    c = PURPLE[4]
-                # bord de fuite découpé (dents régulières)
-                edge = y - vy if x < 56 else vy + 55 - y
-                if edge < 3 and (lx // 4 + edge) % 3 == 0:
-                    c = None
-                if c is None:
+                lx, ly = x % 56, y - vy
+                edge = ly if x < 56 else 55 - ly
+                if edge < 4 and (lx // 4 + edge) % 4 == 0:
                     t.putpixel((x, y), (0, 0, 0, 0))
-                else:
-                    px(t, x, y, c)
-    return t
+                    continue
+                c = VOID[1] if (lx + ly) % 7 else VOID[2]
+                px(t, x, y, c)
+                if lx % 8 == 0:
+                    px(t, x, y, STEEL[2])  # nervures
+                    if ly % 4 == 0:
+                        px(g, x, y, B[4])
+                elif (ly + (lx // 8) * 4) % 8 == 0:
+                    px(t, x, y, A[2]); px(g, x, y, A[3])  # maillage lumineux
+                elif edge < 6 and edge >= 4:
+                    px(t, x, y, A[3]); px(g, x, y, A[4])  # bord de fuite incandescent
+
+    # --- pattes : genoux lumineux, griffes d'acier ---
+    for name in ("fleg", "rleg"):
+        for side in SIDES:
+            r = R[name][side]
+            gline(r, 0, r[3] - 3, r[2] - 1, r[3] - 3, A[4])
+            frect(t, r, 0, 0, r[2] - 1, 2, STEEL[1])
+    for name in ("ftip", "rtip"):
+        for side in SIDES:
+            r = R[name][side]
+            gline(r, 0, 2, r[2] - 1, 2, B[3])
+            for y in range(6, r[3] - 2, 6):
+                frect(t, r, 0, y, r[2] - 1, y, VOID[0])
+    for name in ("ffoot", "rfoot"):
+        r = R[name]["front"]
+        for x in range(r[2]):
+            at(t, r, x, r[3] - 1, STEEL[5] if x % 3 != 2 else VOID[0])
+            at(t, r, x, r[3] - 2, STEEL[3] if x % 3 != 2 else VOID[0])
+        gline(R[name]["top"], 0, R[name]["top"][3] // 2, R[name]["top"][2] - 1, R[name]["top"][3] // 2, A[3])
+    return t, g
 
 
 # ==========================================================================
@@ -642,24 +803,38 @@ def squid(glow=False):
 
 
 def bat():
+    """Mini-drone de reconnaissance : pas d'ailes, caméra rouge, propulseurs, antennes."""
     t = new(32, 32)
-    body = box(t, 0, 0, 3, 5, 2, INK, 1200, rivets=False)
-    head = box(t, 0, 7, 4, 3, 2, INK, 1201, rivets=False)
-    f = head["front"]
-    at(t, f, 0, 1, RED[5]); at(t, f, 3, 1, RED[5])
-    for (u, v, w, h) in ((1, 15, 3, 5), (8, 15, 3, 5), (12, 0, 2, 7), (16, 0, 6, 8), (12, 7, 2, 7), (16, 8, 6, 8), (16, 16, 3, 2)):
-        for side in (0, 1):  # plans : avant + arrière côte à côte
-            x0 = u + side * w
-            for y in range(h):
-                for x in range(w):
-                    c = INK[3] if (x + side * w) % 3 == 0 else INK[2]
-                    if y == h - 1 and x % 2 == 1 and w >= 6:
-                        continue  # bord de l'aile découpé
-                    px(t, x0 + x, v + y, c)
-            if w >= 6:
-                for y in range(0, h, 3):
-                    px(t, x0 + 1, v + y, RED[3])
-    frect(t, body["front"], 1, 1, 1, 3, RED[2])
+    body = box(t, 0, 0, 3, 5, 2, STEEL, 1200, rivets=False)
+    head = box(t, 0, 7, 4, 3, 2, DARKSTEEL, 1201, rivets=False)
+    for s_ in SIDES:  # fuselage : bande cyan + batterie
+        r = body[s_]
+        frect(t, r, 0, 1, r[2] - 1, 1, CYAN[3])
+        frect(t, r, 0, 4, r[2] - 1, 4, STEEL[1])
+    frect(t, body["front"], 1, 2, 1, 3, GREEN[4])
+    f = head["front"]  # objectif de caméra
+    frect(t, f, 0, 0, 3, 2, OUT)
+    frect(t, f, 1, 0, 2, 1, RED[3]); at(t, f, 1, 0, (255, 255, 255)); at(t, f, 2, 1, RED[1])
+    at(t, f, 3, 2, ORANGE[4])
+    for s_ in ("left", "right", "back"):
+        frect(t, head[s_], 0, 1, head[s_][2] - 1, 1, CYAN[2])
+    for (u, v, w, h) in ((1, 15, 3, 5), (8, 15, 3, 5)):  # oreilles -> antennes
+        for side in (0, 1):
+            x = u + side * w + 1
+            for y in range(1, h):
+                px(t, x, v + y, STEEL[4])
+            px(t, x, v, RED[5])
+    for (u, v) in ((12, 0), (12, 7)):  # base des ailes -> petits propulseurs
+        for side in (0, 1):
+            x0 = u + side * 2
+            rect(t, x0, v + 2, x0 + 1, v + 3, STEEL[3])
+            px(t, x0, v + 2, STEEL[5])
+            rect(t, x0, v + 4, x0 + 1, v + 4, CYAN[4])
+    for side in (0, 1):  # pattes -> patin d'atterrissage
+        x0 = 16 + side * 3
+        rect(t, x0, 17, x0 + 2, 17, STEEL[4])
+        px(t, x0 + 1, 16, STEEL[2])
+    # bouts d'ailes (16,0) et (16,8) : laissés transparents => plus d'ailes
     return t
 
 
@@ -698,7 +873,10 @@ def textures():
     tex["enderman/enderman_eyes.png"] = em_eyes
     tex["endermite/endermite.png"] = endermite()
     tex["shulker/shulker.png"] = shulker()
-    tex["enderdragon/dragon.png"] = dragon()
+    tex["enderdragon/dragon.png"], tex["enderdragon/dragon_eyes.png"] = dragon()
+    hot, hot_glow = dragon(hot=True)  # animation de mort : surchauffe
+    hot.alpha_composite(hot_glow)
+    tex["enderdragon/dragon_exploding.png"] = hot
     tex["blaze/blaze.png"] = blaze()
     tex["ghast/ghast.png"] = ghast()
     tex["ghast/ghast_shooting.png"] = ghast(shooting=True)

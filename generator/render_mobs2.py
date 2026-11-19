@@ -216,12 +216,16 @@ def fox():
     return parts
 
 
+def dragon_model_lazy():
+    return dragon_model()
+
+
 # --------------------------------------------------------------------------
 END_NETHER = [
     ("Spectre du Vide", "Enderman", enderman, lambda: with_overlay("enderman/enderman.png", "enderman/enderman_eyes.png")),
     ("Nanobot du Vide", "Endermite", endermite, lambda: ent("endermite/endermite.png")),
     ("Tourelle-coffre", "Shulker", shulker, lambda: ent("shulker/shulker.png")),
-    ("Dragon cuirassé du Vide", "Ender Dragon", None, lambda: ent("enderdragon/dragon.png")),
+    ("Dragon cuirassé du Vide", "Ender Dragon", dragon_model_lazy, lambda: with_overlay("enderdragon/dragon.png", "enderdragon/dragon_eyes.png")),
     ("Drone à plasma", "Blaze", blaze, lambda: ent("blaze/blaze.png")),
     ("Sonde-méduse", "Ghast", ghast, lambda: ent("ghast/ghast.png")),
     ("Sonde-méduse (attaque)", "Ghast qui tire", ghast, lambda: ent("ghast/ghast_shooting.png")),
@@ -303,10 +307,86 @@ def card_sheet(title, subtitle, entries, cols=4, cw=300, ch=320):
     return img
 
 
+
+
+# ------------------------------------------------------------ DRAGON 3D ---
+def dragon_model(jaw_open=0.3, root_rot=(0, 0, 0)):
+    root = Part((0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0), root_rot)
+    head = Part((0, 0), (0, 0, 0, 0, 0, 0), (0, 21, -64), parent=root)
+    parts = [Part((176, 44), (-6, -1, -24, 12, 5, 16), parent=head), Part((112, 30), (-8, -8, -10, 16, 16, 16), parent=head),
+             Part((0, 0), (-5, -12, -4, 2, 4, 6), parent=head, mirror=True), Part((0, 0), (3, -12, -4, 2, 4, 6), parent=head),
+             Part((112, 0), (-5, -3, -22, 2, 2, 4), parent=head, mirror=True), Part((112, 0), (3, -3, -22, 2, 2, 4), parent=head),
+             Part((176, 65), (-6, 0, -16, 12, 4, 16), (0, 4, -8), (jaw_open, 0, 0), parent=head)]
+    for i, (y, z) in enumerate(((20, -52), (18, -42), (16, -32), (15, -22), (15, -12))):
+        parts += [Part((192, 104), (-5, -5, -5, 10, 10, 10), (0, y, z), parent=root),
+                  Part((48, 0), (-1, -9, -3, 2, 4, 6), (0, y, z), parent=root)]
+    body = Part((0, 0), (0, 0, 0, 0, 0, 0), (0, 20, 8), parent=root)
+    parts.append(Part((0, 0), (-12, -16, -16, 24, 24, 64), parent=body))
+    for z in (-10, 10, 30):
+        parts.append(Part((220, 53), (-1, -22, z, 2, 6, 12), parent=body))
+    for i in range(12):
+        x, y, z = 6 * math.sin(i * 0.45), 14 + 3 * math.sin(i * 0.6), 61 + 10 * i
+        parts += [Part((192, 104), (-5, -5, -5, 10, 10, 10), (x, y, z), parent=root),
+                  Part((48, 0), (-1, -9, -3, 2, 4, 6), (x, y, z), parent=root)]
+    for sgn in (1, -1):
+        m = sgn > 0
+        x0 = 0 if m else -56
+        wing = Part((0, 0), (0, 0, 0, 0, 0, 0), (12 * sgn, -15, -6), (0, 0, -0.38 * sgn), parent=body)
+        tip = Part((0, 0), (0, 0, 0, 0, 0, 0), (56 * sgn, 0, 0), (0, 0, 0.55 * sgn), parent=wing)
+        parts += [Part((112, 88), (x0, -4, -4, 56, 8, 8), parent=wing, mirror=m),
+                  Part((-56, 88), (x0, 0, 2, 56, 0, 56), parent=wing, mirror=m),
+                  Part((112, 136), (x0, -2, -2, 56, 4, 4), parent=tip, mirror=m),
+                  Part((-56, 144), (x0, 0, 2, 56, 0, 56), parent=tip, mirror=m)]
+        fl = Part((112, 104), (-4, -4, -4, 8, 24, 8), (12 * sgn, 0, -6), (1.3, 0, 0), parent=body)
+        ft = Part((226, 138), (-3, -1, -3, 6, 24, 6), (0, 20, -1), (-0.5, 0, 0), parent=fl)
+        ff = Part((144, 104), (-4, 0, -12, 8, 4, 16), (0, 23, 0), (0.75, 0, 0), parent=ft)
+        rl = Part((0, 0), (-8, -4, -8, 16, 32, 16), (16 * sgn, -4, 34), (1.0, 0, 0), parent=body)
+        rt = Part((196, 0), (-6, -2, 0, 12, 32, 12), (0, 32, -4), (0.5, 0, 0), parent=rl)
+        rf = Part((112, 0), (-9, 0, -20, 18, 6, 24), (0, 31, 4), (0.75, 0, 0), parent=rt)
+        parts += [fl, ft, ff, rl, rt, rf]
+    return parts
+
+
+def render_dragon():
+    from PIL import ImageChops, ImageFilter
+    W, H = 1400, 860
+    img = rs.sky(W, H)
+    d = ImageDraw.Draw(img)
+    for y in range(H):  # ambiance de l'End : brume violette
+        a = int(70 * max(0, (y - H * 0.4) / (H * 0.6)))
+        d.line([(0, y), (W, y)], fill=(60, 20, 90, a))
+    img = Image.alpha_composite(rs.sky(W, H), img)
+    base, glow = ent("enderdragon/dragon.png"), ent("enderdragon/dragon_eyes.png")
+    hl = Image.new("RGB", (W, H), (0, 0, 0))
+    views = [(dragon_model(0.45, (-1.15, -0.5, 0)), (W * 0.62, H - 120), (20, 110)),
+             (dragon_model(0.3), (W * 0.4, H * 0.5), (W * 0.6, 120))]
+    for parts, size, pos in views:
+        size = (int(size[0]), int(size[1]))
+        k, ox, oy = rm.fit(parts, base, size, margin=10)
+        body = rm.render_model(parts, base, k, size, center=(ox, oy))
+        lights = rm.render_model(parts, glow, k, size, center=(ox, oy))
+        img.alpha_composite(body, (int(pos[0]), int(pos[1])))
+        for radius in (6, 16):
+            halo = lights.filter(ImageFilter.GaussianBlur(radius))
+            tmp = Image.new("RGB", (W, H), (0, 0, 0))
+            tmp.paste(halo.convert("RGB"), (int(pos[0]), int(pos[1])), halo)
+            hl = ImageChops.add(hl, tmp)
+    img = Image.merge("RGBA", (*ImageChops.add(img.convert("RGB"), hl).split(), Image.new("L", (W, H), 255)))
+    d0 = ImageDraw.Draw(img)
+    d0.text((W * 0.62, H * 0.58), "vue de dessus, en vol", font=rs.font(16), fill=(190, 180, 220))
+    d0.text((30, H - 40), "cabré : réacteur ventral et gueule de plasma", font=rs.font(16), fill=(190, 180, 220))
+    d = ImageDraw.Draw(img)
+    d.text((32, 24), "Dragon cuirassé du Vide", font=rs.font(42, True), fill=(220, 160, 255))
+    d.text((34, 78), "remplace l'Ender Dragon · réacteur ventral, anneaux d'énergie, voiles lumineuses, gueule de plasma",
+           font=rs.font(18), fill=(200, 210, 235))
+    return img
+
+
 if __name__ == "__main__":
     os.makedirs(rs.OUTDIR, exist_ok=True)
     card_sheet("L'End et le Nether", "modèles Minecraft 26.x avec les textures du pack", END_NETHER).convert("RGB").save(
         os.path.join(rs.OUTDIR, "mobs_end_nether.png"))
     card_sheet("Les mobs passifs", "modèles Minecraft 26.x avec les textures du pack", PASSIFS).convert("RGB").save(
         os.path.join(rs.OUTDIR, "mobs_passifs.png"))
-    print("OK")
+    render_dragon().convert("RGB").save(os.path.join(rs.OUTDIR, "dragon.png"))
+    print("dragon OK")

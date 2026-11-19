@@ -50,7 +50,6 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** (1.21.x). Si une versi
 | Verre | Champ de force |
 | Pierre lumineuse, lampe | Panneau néon, projecteur |
 | Obsidienne | Panneau de circuits violets |
-
 | Zombie | **Soldat envahisseur** (armure violette, visière rouge, crête orange) |
 | Squelette | **Droïde sentinelle** (robot chromé à œil rouge) |
 | Creeper | **Bombe-robot** (caisse à bandes de danger, compte à rebours) |

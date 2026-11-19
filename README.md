@@ -10,6 +10,10 @@ Toutes les textures sont **originales** et dessinées en pixel art 16×16 par un
 |---|---|
 | ![Blocs](screenshots/blocs_3d.png) | ![Objets](screenshots/objets.png) |
 
+### Le jetpack
+
+![Jetpack](screenshots/jetpack.png)
+
 ### Les ennemis
 
 ![Ennemis](screenshots/ennemis.png)
@@ -41,6 +45,7 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** pour les blocs et obje
 | Pépite d'or | **Boulon** (la monnaie) |
 | Épées (bois → netherite) | **Clés à molette** (fortune, rouillée, acier, laiton, énergie, néant) |
 | Arc (+ 3 étapes de tension) | **Blaster** qui se charge en énergie |
+| Élytres (+ cassées) | **Jetpack** : deux réservoirs, tuyères et flammes ; en vol plané, les réservoirs s'écartent |
 | Lingots de fer / d'or | Barres d'acier / de laiton |
 | Diamant / Émeraude | Cristal rare / Cellule d'énergie |
 | Pomme | Capsule de soin |

@@ -52,5 +52,6 @@
   "entity.minecraft.squid": "Calamar-sonde",
   "entity.minecraft.glow_squid": "Calamar néon",
   "entity.minecraft.bat": "Chauve-souris drone",
-  "entity.minecraft.fox": "Renard éclaireur"
+  "entity.minecraft.fox": "Renard éclaireur",
+  "item.minecraft.elytra": "Jetpack"
 }

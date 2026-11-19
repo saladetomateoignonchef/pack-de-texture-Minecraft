@@ -390,3 +390,78 @@ if __name__ == "__main__":
         os.path.join(rs.OUTDIR, "mobs_passifs.png"))
     render_dragon().convert("RGB").save(os.path.join(rs.OUTDIR, "dragon.png"))
     print("dragon OK")
+
+
+# ------------------------------------------------------------- JETPACK ----
+def pilot_texture():
+    """Pilote générique, uniquement pour l'aperçu (pas dans le pack)."""
+    import mobs_ext as mx
+    from generate import CYAN as CY, new as nw, STEEL as ST, ORANGE as OR
+    t = nw(64, 64)
+    head = mx.box(t, 0, 0, 8, 8, 8, OR, 1, rivets=False)
+    mx.frect(t, head["front"], 1, 2, 6, 4, CY[3])
+    for (u, v, w, h, d) in ((16, 16, 8, 12, 4), (40, 16, 4, 12, 4), (32, 48, 4, 12, 4), (0, 16, 4, 12, 4), (16, 48, 4, 12, 4)):
+        mx.box(t, u, v, w, h, d, ST, 2, rivets=False)
+    return t
+
+
+def jetpack_model(gliding):
+    root = Part((0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0), (1.35 if gliding else 0, math.pi - 0.55, 0))
+    sp = 1.35 if gliding else 0.262
+    xr = 0.35 if gliding else 0.262
+    arms = 0.25 if gliding else 0.0
+    body = [Part((0, 0), (-4, -8, -4, 8, 8, 8), parent=root), Part((16, 16), (-4, 0, -2, 8, 12, 4), parent=root),
+            Part((40, 16), (-3, -2, -2, 4, 12, 4), (-5, 2, 0), (0, 0, arms), parent=root),
+            Part((32, 48), (-1, -2, -2, 4, 12, 4), (5, 2, 0), (0, 0, -arms), parent=root),
+            Part((0, 16), (-2, 0, -2, 4, 12, 4), (-1.9, 12, 0), parent=root),
+            Part((16, 48), (-2, 0, -2, 4, 12, 4), (1.9, 12, 0), parent=root)]
+    pack = [Part((22, 0), (-10, 0, 0, 10, 20, 2), (5, 0, 2), (xr, 0, -sp), inflate=1.0, parent=root),
+            Part((22, 0), (0, 0, 0, 10, 20, 2), (-5, 0, 2), (xr, 0, sp), inflate=1.0, mirror=True, parent=root)]
+    return body, pack
+
+
+def render_jetpack():
+    W, H = 1200, 700
+    img = rs.sky(W, H)
+    d = ImageDraw.Draw(img)
+    d.text((30, 24), "Jetpack", font=rs.font(42, True), fill=(255, 190, 80))
+    d.text((32, 78), "remplace les élytres · deux réservoirs, tuyères et flammes", font=rs.font(18), fill=(200, 210, 235))
+    skin, jp = pilot_texture(), ent("equipment/wings/elytra.png")
+    for i, (gl, label) in enumerate(((False, "replié, au sol (vu de dos)"), (True, "en vol plané : les réservoirs s'écartent"))):
+        body, pack = jetpack_model(gl)
+        size = (440, 500)
+        k, ox, oy = rm.fit(body + pack, jp, size)
+        allparts = [(p, skin) for p in body] + [(p, jp) for p in pack]
+        faces = []
+        for p, tx in allparts:
+            faces += p.faces(tx)
+        faces.sort(key=lambda f: f[0])
+        cell = Image.new("RGBA", size, (0, 0, 0, 0))
+        for _, fimg, o, ex, ey, rw, rh, b in faces:
+            sx, sy = rm.project(o, k, ox, oy)
+            eu = ((ex[0] + ex[2]) * k / rw, (-ex[0] + ex[2]) * k / 2 / rw - ex[1] * k / rw)
+            ev = ((ey[0] + ey[2]) * k / rh, (-ey[0] + ey[2]) * k / 2 / rh - ey[1] * k / rh)
+            if abs(eu[0] * ev[1] - ev[0] * eu[1]) < 1e-6:
+                continue
+            cell.alpha_composite(rs.affine_face(rs.shade(fimg, b), size, (sx, sy), eu, ev))
+        x0 = 30 + i * 470
+        d.rounded_rectangle([x0, 120, x0 + 455, 660], radius=14, fill=(30, 26, 48, 200), outline=(70, 80, 98), width=2)
+        img.alpha_composite(cell, (x0 + 8, 128))
+        f = rs.font(17)
+        tw = d.textlength(label, font=f)
+        d.text((x0 + (455 - tw) / 2, 628), label, font=f, fill=(150, 228, 255))
+    # icônes d'objet
+    x0 = 975
+    d.rounded_rectangle([x0, 120, x0 + 200, 660], radius=14, fill=(30, 26, 48, 200), outline=(70, 80, 98), width=2)
+    for j, (name, label) in enumerate((("elytra", "Jetpack"), ("elytra_broken", "Jetpack cassé"))):
+        icon = Image.open(os.path.join(rm.ROOT, "pack", "assets", "minecraft", "textures", "item", name + ".png")).convert("RGBA")
+        img.alpha_composite(icon.resize((128, 128), Image.NEAREST), (x0 + 36, 160 + j * 240))
+        f = rs.font(17, True)
+        tw = d.textlength(label, font=f)
+        d.text((x0 + (200 - tw) / 2, 300 + j * 240), label, font=f, fill=(150, 228, 255))
+    return img
+
+
+if __name__ == "__main__":
+    render_jetpack().convert("RGB").save(os.path.join(rs.OUTDIR, "jetpack.png"))
+    print("jetpack OK")

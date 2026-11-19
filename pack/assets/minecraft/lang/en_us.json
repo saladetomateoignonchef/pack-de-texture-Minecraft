@@ -52,5 +52,6 @@
   "entity.minecraft.squid": "Probe Squid",
   "entity.minecraft.glow_squid": "Neon Squid",
   "entity.minecraft.bat": "Bat Drone",
-  "entity.minecraft.fox": "Scout Fox"
+  "entity.minecraft.fox": "Scout Fox",
+  "item.minecraft.elytra": "Jetpack"
 }

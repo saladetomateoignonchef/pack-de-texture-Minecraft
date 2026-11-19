@@ -701,6 +701,15 @@ def build():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         img.save(path)
 
+    import jetpack  # élytres -> jetpack
+    for rel, fn in jetpack.TEXTURES_ENTITY.items():
+        path = os.path.join(entity_dir, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        fn().save(path)
+    for rel, fn in jetpack.TEXTURES_ITEM.items():
+        items[rel[:-4]] = fn()
+        fn().save(os.path.join(ITEM, rel))
+
     mcmeta = {
         "pack": {
             "pack_format": 46,
@@ -767,8 +776,8 @@ def build():
         "block.minecraft.oak_planks": "Armor Plates",
         "block.minecraft.cobblestone": "Scrap Metal",
     }
-    names_fr.update({**mobs.NAMES_FR, **mobs_ext.NAMES_FR})
-    names_en.update({**mobs.NAMES_EN, **mobs_ext.NAMES_EN})
+    names_fr.update({**mobs.NAMES_FR, **mobs_ext.NAMES_FR, **jetpack.NAMES_FR})
+    names_en.update({**mobs.NAMES_EN, **mobs_ext.NAMES_EN, **jetpack.NAMES_EN})
     for fname, data in (("fr_fr.json", names_fr), ("en_us.json", names_en)):
         with open(os.path.join(LANG, fname), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

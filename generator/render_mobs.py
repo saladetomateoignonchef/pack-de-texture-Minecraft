@@ -47,10 +47,17 @@ def dot(a, b):
 
 
 class Part:
-    def __init__(self, uv, box, pivot=(0, 0, 0), r=(0, 0, 0), mirror=False, inflate=0.0):
+    def __init__(self, uv, box, pivot=(0, 0, 0), r=(0, 0, 0), mirror=False, inflate=0.0, parent=None, ts=1):
         self.u, self.v = uv
         self.x0, self.y0, self.z0, self.w, self.h, self.d = box
-        self.pivot, self.M, self.mirror, self.inf = pivot, rot(*r), mirror, inflate
+        self.mirror, self.inf, self.ts = mirror, inflate, ts
+        M = rot(*r)
+        if parent is not None:  # hiérarchie : la pièce suit la pose de son parent
+            pm = parent.M
+            self.M = [[sum(pm[i][k] * M[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+            self.pivot = tuple(parent.pivot[i] + apply(pm, pivot)[i] for i in range(3))
+        else:
+            self.M, self.pivot = M, pivot
 
     def faces(self, tex):
         u, v, w, h, d, i = self.u, self.v, self.w, self.h, self.d, self.inf
@@ -73,7 +80,9 @@ class Part:
         center = to_world(tuple(p + q for p, q in zip(self.pivot, apply(self.M, c_local))))
         out = []
         for name, (o, ex, ey) in geo.items():
-            rx, ry, rw, rh = reg[name]
+            rx, ry, rw, rh = (c * self.ts for c in reg[name])
+            if rw <= 0 or rh <= 0:
+                continue
             img = tex.crop((rx, ry, rx + rw, ry + rh))
             if self.mirror:
                 img = ImageOps.mirror(img)
@@ -83,6 +92,9 @@ class Part:
             exw, eyw = vec_world(apply(self.M, ex)), vec_world(apply(self.M, ey))
             fc = tuple(ow[k] + exw[k] / 2 + eyw[k] / 2 for k in range(3))
             n = tuple(fc[k] - center[k] for k in range(3))
+            if dot(n, n) < 1e-9:  # pièce plate (épaisseur nulle) : normale géométrique
+                n = tuple(-v for v in (exw[1] * eyw[2] - exw[2] * eyw[1], exw[2] * eyw[0] - exw[0] * eyw[2],
+                                       exw[0] * eyw[1] - exw[1] * eyw[0]))
             if dot(n, VIEW) <= 1e-6:
                 continue
             nl = math.sqrt(dot(n, n)) or 1
@@ -97,11 +109,27 @@ def project(p, k, ox, oy):
     return ox + (X + Z) * k, oy + (-X + Z) * k / 2 - Y * k
 
 
-def render_model(parts, tex, k, size, origin=(0, 0, 0)):
-    """origin : décalage monde (en texels) du modèle."""
+def fit(parts, tex, size, margin=16, kmax=14.0):
+    """Choisit l'échelle et l'origine pour que le modèle tienne dans size."""
+    pts = []
+    for p in parts:
+        for _, img, o, ex, ey, rw, rh, b in p.faces(tex):
+            for a in (0, 1):
+                for c in (0, 1):
+                    q = tuple(o[i] + a * ex[i] + c * ey[i] for i in range(3))
+                    pts.append(project(q, 1, 0, 0))
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    k = min((size[0] - 2 * margin) / (max(xs) - min(xs)), (size[1] - 2 * margin) / (max(ys) - min(ys)), kmax)
+    ox = size[0] / 2 - k * (max(xs) + min(xs)) / 2
+    oy = size[1] / 2 - k * (max(ys) + min(ys)) / 2
+    return k, ox, oy
+
+
+def render_model(parts, tex, k, size, origin=(0, 0, 0), center=None):
+    """origin : décalage monde (en texels) du modèle ; center : (ox, oy) imposés."""
     W, H = size
     canvas = Image.new("RGBA", size, (0, 0, 0, 0))
-    ox, oy = W / 2, H - 20
+    ox, oy = center if center else (W / 2, H - 20)
     faces = []
     for p in parts:
         faces += p.faces(tex)

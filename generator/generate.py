@@ -694,8 +694,9 @@ def build():
     pack_icon().save(os.path.join(PACK, "pack.png"))
 
     import mobs  # textures des ennemis
+    import mobs_ext  # End, Nether, mobs passifs
     entity_dir = os.path.join(PACK, "assets", "minecraft", "textures", "entity")
-    for rel, img in mobs.textures().items():
+    for rel, img in {**mobs.textures(), **mobs_ext.textures()}.items():
         path = os.path.join(entity_dir, rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         img.save(path)
@@ -766,8 +767,8 @@ def build():
         "block.minecraft.oak_planks": "Armor Plates",
         "block.minecraft.cobblestone": "Scrap Metal",
     }
-    names_fr.update(mobs.NAMES_FR)
-    names_en.update(mobs.NAMES_EN)
+    names_fr.update({**mobs.NAMES_FR, **mobs_ext.NAMES_FR})
+    names_en.update({**mobs.NAMES_EN, **mobs_ext.NAMES_EN})
     for fname, data in (("fr_fr.json", names_fr), ("en_us.json", names_en)):
         with open(os.path.join(LANG, fname), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

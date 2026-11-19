@@ -15,6 +15,11 @@ Toutes les textures sont **originales** et dessinées en pixel art 16×16 par un
 ![Ennemis](screenshots/ennemis.png)
 ![Invasion](screenshots/invasion.png)
 
+### L'End, le Nether et les mobs passifs
+
+![End et Nether](screenshots/mobs_end_nether.png)
+![Mobs passifs](screenshots/mobs_passifs.png)
+
 Planche brute de toutes les textures : [preview.png](preview.png). Les rendus sont générés par `generator/render_screens.py` et `generator/render_mobs.py`.
 
 ## Installation
@@ -26,7 +31,7 @@ Planche brute de toutes les textures : [preview.png](preview.png). Les rendus so
    - Linux : `~/.minecraft/resourcepacks`
 3. En jeu : **Options → Packs de ressources**, puis activer « Boulons & Galaxies ».
 
-Versions visées : Minecraft Java **1.20.5 et suivantes** (1.21.x). Si une version plus récente affiche « incompatible », le pack fonctionne quand même : il suffit de confirmer.
+Versions visées : Minecraft Java **1.20.5 et suivantes** pour les blocs et objets ; les mobs suivent les chemins et la géométrie de **Minecraft 26.x** (testés contre la 26.3). Si une version plus récente affiche « incompatible », le pack fonctionne quand même : il suffit de confirmer.
 
 ## Ce qui change
 
@@ -55,6 +60,18 @@ Versions visées : Minecraft Java **1.20.5 et suivantes** (1.21.x). Si une versi
 | Creeper | **Bombe-robot** (caisse à bandes de danger, compte à rebours) |
 | Araignée | **Araignée mécanique** (yeux rouges lumineux) |
 | Araignée venimeuse | **Araignée-drone** (version sombre à néons bleus) |
+| Enderman / Endermite | **Spectre du Vide** (yeux violets lumineux) / **Nanobot du Vide** |
+| Shulker / Ender Dragon | **Tourelle-coffre** / **Dragon cuirassé du Vide** (ailes en voiles solaires) |
+| Blaze / Ghast | **Drone à plasma** / **Sonde-méduse** (écran qui passe au rouge quand elle tire) |
+| Cube de magma / Wither squelette | **Cube de fusion** / **Droïde du Néant** |
+| Piglin / Piglin barbare / Piglin zombifié | **Contrebandier** / **Garde blindé** / **Contrebandier cyborg** |
+| Hoglin / Zoglin | **Sanglier-tank** / **Sanglier-tank corrompu** |
+| Arpenteur (+ gelé) | **Marcheur thermique** |
+| Cochon, vache, poule (3 climats chacun) | **Porcelet mécanique**, **Vache-citerne**, **Poule-drone** |
+| Champimeuh rouge / brune | **Vache bio-réacteur** |
+| Mouton (+ laine, sous-laine) | **Mouton à ressorts** (laine = fibre isolante, teintable) |
+| Lapin (8 variantes) / Renard (4 variantes) | **Lapin sauteur** / **Renard éclaireur** |
+| Calamar / Calamar luisant / Chauve-souris | **Calamar-sonde** / **Calamar néon** / **Chauve-souris drone** |
 
 Les noms des objets modifiés sont aussi traduits (fichiers `fr_fr.json` et `en_us.json`).
 

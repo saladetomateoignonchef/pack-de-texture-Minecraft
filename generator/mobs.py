@@ -322,7 +322,8 @@ def textures():
         "creeper/creeper.png": creeper(),
         "spider/spider.png": spider(),
         "spider/cave_spider.png": spider(accent=CYAN, body=DARKSTEEL, seed=70),
-        "spider_eyes.png": spider_eyes(),
+        "spider/spider_eyes.png": spider_eyes(),  # 26.x
+        "spider_eyes.png": spider_eyes(),  # 1.20.5 - 1.21.x
     }
 
 
